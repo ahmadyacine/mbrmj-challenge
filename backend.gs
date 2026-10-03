@@ -208,6 +208,10 @@ function buildEmail_(b) {
         '<td style="padding:9px 8px;border-bottom:1px solid #EEEAE0;font-family:' + F + ';font-size:15px;line-height:1.8;color:#0F1B2D;text-align:right">' + esc_(p[1]) + '</td></tr>';
     }).join('') + '</table>';
   }
+  if (r.checklist && r.checklist.url) {
+    body += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:26px 0 0"><tr><td style="border:1.5px solid #1B3250;border-radius:10px;padding:14px 18px;text-align:right;font-family:' + F + ';font-size:15px;line-height:1.8;color:#0F1B2D">' +
+      '<b style="color:#1B3250">قائمة مرفقة لك:</b> ما تبدأ أي مهمة حقيقية بدونها.<br><a href="' + esc_(r.checklist.url) + '" style="color:#1B3250;font-weight:bold">' + esc_(r.checklist.text) + '</a></td></tr></table>';
+  }
   if (r.closing) {
     body += '<div style="font-family:' + F + ';font-size:16px;line-height:2;color:#0F1B2D;margin:30px 0 18px;padding-top:22px;border-top:2px solid #1B3250;text-align:right">' + esc_(r.closing) + '</div>';
     if (r.cta && r.cta.url) {

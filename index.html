@@ -257,7 +257,7 @@ const CONFIG = {
   WHATSAPP_NUMBER: "971553514282",
   WHATSAPP_CHANNEL_URL: "",
   WAITLIST_URL: "",
-  CHECKLIST_PDF_URL: "",
+  CHECKLIST_PDF_URL: "https://ahmadyacine.github.io/mbrmj-challenge/Mbrmj-Real-Task-Checklist.pdf",
   INTRO_VIDEO_URL: "https://www.instagram.com/reel/DeAESDDMyyZ/?utm_source=ig_web_copy_link&stkn=MzRlODBiNWFlZA==",          // optional: YouTube / Instagram embed URL or .mp4
   SITE_URL: "https://mbrmj.ae/challenge",
   STORAGE_KEY: "mbrmj_challenge_v1",
@@ -946,6 +946,7 @@ function reportData() {
     strong: r.filter((x) => x.st === "strong").map((x) => ({ ar: x.ar, m: plain(REPORT[x.k].strong.m) })),
     story: { situation: plain(STORY.situation), did: plain(STORY.did), result: plain(STORY.result), tail: plain(STORY.tail) },
     plan: rows, closing: CLOSING,
+    checklist: CONFIG.CHECKLIST_PDF_URL ? { url: CONFIG.CHECKLIST_PDF_URL, text: "حمّل قائمة “المهمة الحقيقية” PDF" } : null,
     cta: CONFIG.WAITLIST_URL ? { url: CONFIG.WAITLIST_URL, text: "سجّل في قائمة انتظار الدفعة القادمة" } : { url: CONFIG.SITE_URL, text: "ارجع للتحدي" }
   };
 }
