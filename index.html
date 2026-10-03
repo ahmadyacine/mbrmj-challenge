@@ -931,6 +931,24 @@ function reportHTML() {
   h += '<div class="card" style="margin-top:20px"><p style="margin:0">' + esc(CLOSING) + "</p></div></div>";
   return h;
 }
+const plain = (s) => String(s).replace(/\{\{(.+?)\}\}/g, "$1").replace(/\*\*(.+?)\*\*/g, "$1").replace(/`(.+?)`/g, "$1");
+function reportData() {
+  const r = ranked(), item = (x) => ({ ar: x.ar, st: x.st, label: STATUS_LABEL[x.st] });
+  const full = (x) => Object.assign(item(x), { m: plain(REPORT[x.k][x.st].m), n: plain(REPORT[x.k][x.st].n) });
+  const top = r[0], non = r.filter((x) => x.st !== "strong");
+  const rows = []; const tmp = document.createElement("div"); tmp.innerHTML = planHTML();
+  tmp.querySelectorAll("li").forEach((li) => rows.push([li.querySelector("b").textContent, li.querySelector("span").textContent]));
+  return {
+    name: S.lead ? S.lead.name : "", score: toAr(computeScore()) + "/٨",
+    rows: r.map(item),
+    focus: top.st !== "strong" ? full(top) : null,
+    others: non.filter((x) => x !== top).map(full),
+    strong: r.filter((x) => x.st === "strong").map((x) => ({ ar: x.ar, m: plain(REPORT[x.k].strong.m) })),
+    story: { situation: plain(STORY.situation), did: plain(STORY.did), result: plain(STORY.result), tail: plain(STORY.tail) },
+    plan: rows, closing: CLOSING,
+    cta: CONFIG.WAITLIST_URL ? { url: CONFIG.WAITLIST_URL, text: "سجّل في قائمة انتظار الدفعة القادمة" } : { url: CONFIG.SITE_URL, text: "ارجع للتحدي" }
+  };
+}
 function resLink(k) { const u = CONFIG.RESOURCES[k]; return u ? '<p><b>مصدر:</b> <a href="' + esc(u) + '" target="_blank" rel="noopener">افتح المصدر</a></p>' : ""; }
 function reportScreen() {
   const btn = (u, id, txt, cls) => u ? '<a class="btn ' + (cls || "sec") + '" href="' + esc(u) + '" target="_blank" rel="noopener" data-log="' + id + '">' + txt + "</a>" : "";
@@ -1038,7 +1056,7 @@ function submitLead(e) {
   const payload = {
     type: "lead", ts: new Date().toISOString(), session_id: S.sid, visitor_id: S.vid, variant: S.variant, name, whatsapp: cc + raw, email: mail, consent: true,
     score: computeScore(), blind_spots: r.filter((x) => x.st === "blind").map((x) => x.ar).join("، "), gaps: r.filter((x) => x.st === "gap").map((x) => x.ar).join("، "),
-    ref: params.get("ref") || "", report_html: reportHTML()
+    ref: params.get("ref") || "", report: reportData()
   };
   log("contact_submit", {}, "contact");
   S.screen = "report"; save();

@@ -146,23 +146,86 @@ function handleLead_(b) {
   }
 }
 
+// Hosted copy of the white logo (publish logo-white.png next to index.html on GitHub Pages).
+var EMAIL_LOGO = 'https://ahmadyacine.github.io/mbrmj-challenge/logo-white.png';
+var EMAIL_FONT = "Tahoma,'Segoe UI',Arial,sans-serif";
+var EMAIL_COL = {
+  blind: { c: '#C8473A', bg: '#FBEDEA', tx: '#8E2D23' },
+  gap: { c: '#D99A2B', bg: '#FCF4E2', tx: '#7A5410' },
+  strong: { c: '#2F8F6B', bg: '#E9F5EF', tx: '#1D6247' }
+};
+
+function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+/** b.report = { name, score, rows:[{ar,st,label}], focus:{ar,st,label,m,n}|null, others:[{ar,st,label,m,n}],
+ *               strong:[{ar,m}], story:{situation,did,result,tail}, plan:[[day,text]], closing, cta:{url,text} } */
 function buildEmail_(b) {
-  var css = 'body{font-family:Tahoma,Arial,sans-serif;background:#F6F4EF;color:#0F1B2D;line-height:1.8}' +
-    '.box{max-width:560px;margin:0 auto;background:#fff;padding:20px;border-radius:12px}' +
-    'h2,h3{color:#1B3250;margin:18px 0 6px}.muted{color:#6B7280}' +
-    '.gapmap{list-style:none;padding:0}.gapmap li{padding:4px 0}.gapmap .dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:#2F8F6B;margin-left:8px;vertical-align:middle}' +
-    '.gapmap .gap{background:#D99A2B}.gapmap .blind{background:#C8473A}.gapmap .st{font-weight:bold;margin-right:8px}' +
-    '.callout,.card{border:1px solid #E3DFD6;border-radius:10px;padding:10px 14px;margin:10px 0}' +
-    '.callout.blind{background:#F8E4E1}.callout.gap{background:#FBF1DC}.callout.strong{background:#E6F3ED}' +
-    '.badge{font-size:13px;padding:0 8px;border-radius:99px;background:#eee}' +
-    '.story{background:#1B3250;color:#fff;border-radius:10px;padding:10px 14px}.story b{color:#E8A33D}' +
-    '.plan{list-style:none;padding:0}.plan li{padding:6px 0;border-bottom:1px solid #E3DFD6}.plan b{display:inline-block;min-width:64px;color:#1B3250}' +
-    '.term{border-bottom:1px dotted #1B3250}code{background:#ECE8DD;padding:0 4px;direction:ltr}';
-  return '<html dir="rtl" lang="ar"><head><meta charset="utf-8"><style>' + css + '</style></head><body><div class="box">' +
-    '<p>أهلاً ' + esc_(b.name) + '، هذا تقريرك من تحدي مبرمج:</p>' + (b.report_html || '') +
-    '<p class="muted" style="margin-top:20px">© مبرمج · بياناتك تستخدم فقط للتواصل معك بخصوص التقرير</p></div></body></html>';
+  var r = b.report || {}, F = EMAIL_FONT;
+  function stageCard(x, big) {
+    var k = EMAIL_COL[x.st];
+    return '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 14px"><tr>' +
+      '<td style="background:' + k.bg + ';border-right:4px solid ' + k.c + ';border-radius:10px;padding:' + (big ? '18px 20px' : '14px 18px') + ';font-family:' + F + ';text-align:right">' +
+      '<div style="font-size:' + (big ? 19 : 17) + 'px;font-weight:bold;color:#1B3250;margin:0 0 8px">' + esc_(x.ar) +
+      ' <span style="font-size:13px;font-weight:bold;color:' + k.tx + ';background:#ffffff;border-radius:99px;padding:2px 10px;margin-right:6px">' + esc_(x.label) + '</span></div>' +
+      '<div style="font-size:15px;line-height:1.9;color:#0F1B2D;margin:0 0 6px"><b>وش يعني في الشغل:</b> ' + esc_(x.m) + '</div>' +
+      '<div style="font-size:15px;line-height:1.9;color:#0F1B2D"><b>إيش تتعلم بعدها:</b> ' + esc_(x.n) + '</div></td></tr></table>';
+  }
+  function h2(t) { return '<div style="font-family:' + F + ';font-size:19px;font-weight:bold;color:#1B3250;margin:30px 0 12px;text-align:right">' + esc_(t) + '</div>'; }
+
+  var rows = (r.rows || []).map(function (x) {
+    var k = EMAIL_COL[x.st];
+    return '<tr><td width="22" style="padding:9px 0;border-bottom:1px solid #EEEAE0"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:' + k.c + '"></span></td>' +
+      '<td style="padding:9px 8px;border-bottom:1px solid #EEEAE0;font-family:' + F + ';font-size:16px;color:#0F1B2D;text-align:right">' + esc_(x.ar) + '</td>' +
+      '<td style="padding:9px 0;border-bottom:1px solid #EEEAE0;text-align:left"><span style="font-family:' + F + ';font-size:13px;font-weight:bold;color:' + k.tx + ';background:' + k.bg + ';border-radius:99px;padding:3px 12px">' + esc_(x.label) + '</span></td></tr>';
+  }).join('');
+
+  var body = '';
+  body += '<div style="font-family:' + F + ';font-size:20px;font-weight:bold;color:#1B3250;margin:0 0 6px;text-align:right">أهلاً ' + esc_(r.name || b.name) + '،</div>' +
+    '<div style="font-family:' + F + ';font-size:15px;line-height:1.9;color:#4B5563;margin:0 0 22px;text-align:right">خلصت مهمة سالم. هذي خريطتك: وين أنت جاهز، ووين تشتغل قبل أول وظيفة.</div>';
+  body += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#1B3250;border-radius:12px;padding:16px 20px;text-align:right">' +
+    '<table role="presentation" width="100%"><tr><td style="font-family:' + F + ';font-size:15px;color:#C9D4E3;text-align:right">نتيجتك</td>' +
+    '<td style="font-family:' + F + ';font-size:36px;font-weight:bold;color:#E8A33D;text-align:left">' + esc_(r.score) + '</td></tr></table></td></tr></table>';
+  body += h2('خريطة الفجوات') + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + rows + '</table>';
+  if (r.focus) body += h2('أهم شي تشتغل عليه') + stageCard(r.focus, true);
+  if (r.others && r.others.length) { body += h2('باقي الفجوات'); r.others.forEach(function (x) { body += stageCard(x, false); }); }
+  if (r.strong && r.strong.length) {
+    body += h2('نقاط قوتك');
+    r.strong.forEach(function (x) {
+      body += '<div style="font-family:' + F + ';font-size:15px;line-height:1.9;color:#0F1B2D;margin:0 0 8px;text-align:right"><b style="color:#1D6247">✓ ' + esc_(x.ar) + '</b> — ' + esc_(x.m) + '</div>';
+    });
+  }
+  if (r.story) {
+    var st = r.story;
+    body += h2('قصتك للمقابلة') + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#1B3250;border-radius:12px;padding:18px 20px;font-family:' + F + ';font-size:15px;line-height:1.9;color:#EAF0F7;text-align:right">' +
+      '<div style="margin:0 0 10px"><b style="color:#E8A33D">الموقف:</b> ' + esc_(st.situation) + '</div>' +
+      '<div style="margin:0 0 10px"><b style="color:#E8A33D">إيش سويت:</b> ' + esc_(st.did) + '</div>' +
+      '<div style="margin:0 0 12px"><b style="color:#E8A33D">النتيجة:</b> ' + esc_(st.result) + '</div>' +
+      '<div style="font-weight:bold;color:#ffffff">' + esc_(st.tail) + '</div></td></tr></table>';
+  }
+  if (r.plan && r.plan.length) {
+    body += h2('خطة ٧ أيام') + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + r.plan.map(function (p) {
+      return '<tr><td width="70" valign="top" style="padding:9px 0;border-bottom:1px solid #EEEAE0;font-family:' + F + ';font-size:15px;font-weight:bold;color:#1B3250;text-align:right">' + esc_(p[0]) + '</td>' +
+        '<td style="padding:9px 8px;border-bottom:1px solid #EEEAE0;font-family:' + F + ';font-size:15px;line-height:1.8;color:#0F1B2D;text-align:right">' + esc_(p[1]) + '</td></tr>';
+    }).join('') + '</table>';
+  }
+  if (r.closing) {
+    body += '<div style="font-family:' + F + ';font-size:16px;line-height:2;color:#0F1B2D;margin:30px 0 18px;padding-top:22px;border-top:2px solid #1B3250;text-align:right">' + esc_(r.closing) + '</div>';
+    if (r.cta && r.cta.url) {
+      body += '<table role="presentation" cellpadding="0" cellspacing="0" align="right"><tr><td style="background:#E8A33D;border-radius:10px"><a href="' + esc_(r.cta.url) + '" style="display:inline-block;padding:14px 26px;font-family:' + F + ';font-size:16px;font-weight:bold;color:#0F1B2D;text-decoration:none">' + esc_(r.cta.text) + '</a></td></tr></table><div style="clear:both"></div>';
+    }
+  }
+
+  return '<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>تقريرك من تحدي مبرمج</title></head>' +
+    '<body style="margin:0;padding:0;background:#F6F4EF"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F6F4EF"><tr><td align="center" style="padding:24px 12px">' +
+    '<table role="presentation" width="600" cellpadding="0" cellspacing="0" dir="rtl" style="width:100%;max-width:600px">' +
+    '<tr><td style="background:#1B3250;border-radius:14px 14px 0 0;padding:24px 28px 20px;text-align:right">' +
+    '<img src="' + EMAIL_LOGO + '" width="104" alt="مبرمج" style="display:block;border:0;height:auto;margin:0 0 14px">' +
+    '<div style="font-family:Consolas,Menlo,monospace;font-size:13px;letter-spacing:1px;color:#E8A33D;direction:ltr;text-align:right">TASK #001 · DONE</div></td></tr>' +
+    '<tr><td style="background:#E8A33D;height:4px;line-height:4px;font-size:0">&nbsp;</td></tr>' +
+    '<tr><td style="background:#ffffff;border-radius:0 0 14px 14px;padding:28px 28px 30px">' + body + '</td></tr>' +
+    '<tr><td style="padding:18px 8px 0;font-family:' + F + ';font-size:12px;line-height:1.8;color:#8A8F99;text-align:center">© مبرمج · بياناتك تستخدم فقط للتواصل معك بخصوص التقرير</td></tr>' +
+    '</table></td></tr></table></body></html>';
 }
-function esc_(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
 /* ---------------- setup + dashboard ---------------- */
 function setup() {
