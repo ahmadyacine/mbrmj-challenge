@@ -158,7 +158,7 @@ var EMAIL_COL = {
 function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
 /** b.report = { name, score, rows:[{ar,st,label}], focus:{ar,st,label,m,n}|null, others:[{ar,st,label,m,n}],
- *               strong:[{ar,m}], story:{situation,did,result,tail}, plan:[[day,text]], closing, cta:{url,text} } */
+ *               strong:[{ar,m}], story:{situation,did,result,tail}, checklist:{url,text}|null, closing, cta:{url,text} } */
 function buildEmail_(b) {
   var r = b.report || {}, F = EMAIL_FONT;
   function stageCard(x, big) {
@@ -202,15 +202,11 @@ function buildEmail_(b) {
       '<div style="margin:0 0 12px"><b style="color:#E8A33D">النتيجة:</b> ' + esc_(st.result) + '</div>' +
       '<div style="font-weight:bold;color:#ffffff">' + esc_(st.tail) + '</div></td></tr></table>';
   }
-  if (r.plan && r.plan.length) {
-    body += h2('خطة ٧ أيام') + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' + r.plan.map(function (p) {
-      return '<tr><td width="70" valign="top" style="padding:9px 0;border-bottom:1px solid #EEEAE0;font-family:' + F + ';font-size:15px;font-weight:bold;color:#1B3250;text-align:right">' + esc_(p[0]) + '</td>' +
-        '<td style="padding:9px 8px;border-bottom:1px solid #EEEAE0;font-family:' + F + ';font-size:15px;line-height:1.8;color:#0F1B2D;text-align:right">' + esc_(p[1]) + '</td></tr>';
-    }).join('') + '</table>';
-  }
   if (r.checklist && r.checklist.url) {
-    body += '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:26px 0 0"><tr><td style="border:1.5px solid #1B3250;border-radius:10px;padding:14px 18px;text-align:right;font-family:' + F + ';font-size:15px;line-height:1.8;color:#0F1B2D">' +
-      '<b style="color:#1B3250">قائمة مرفقة لك:</b> ما تبدأ أي مهمة حقيقية بدونها.<br><a href="' + esc_(r.checklist.url) + '" style="color:#1B3250;font-weight:bold">' + esc_(r.checklist.text) + '</a></td></tr></table>';
+    body += h2('قائمتك الجاهزة') + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border:1.5px solid #1B3250;border-radius:12px;padding:18px 20px;text-align:right;font-family:' + F + '">' +
+      '<div style="font-size:17px;font-weight:bold;color:#1B3250;margin:0 0 6px">قائمة “المهمة الحقيقية” (PDF)</div>' +
+      '<div style="font-size:15px;line-height:1.9;color:#4B5563;margin:0 0 14px">خذها معك لأي مهمة حقيقية، من أول يوم.</div>' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" align="right"><tr><td style="background:#E8A33D;border-radius:10px"><a href="' + esc_(r.checklist.url) + '" style="display:inline-block;padding:12px 24px;font-family:' + F + ';font-size:16px;font-weight:bold;color:#0F1B2D;text-decoration:none">حمّل الـ PDF</a></td></tr></table><div style="clear:both"></div></td></tr></table>';
   }
   if (r.closing) {
     body += '<div style="font-family:' + F + ';font-size:16px;line-height:2;color:#0F1B2D;margin:30px 0 18px;padding-top:22px;border-top:2px solid #1B3250;text-align:right">' + esc_(r.closing) + '</div>';

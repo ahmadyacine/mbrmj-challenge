@@ -216,6 +216,10 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;min-height:
 .hero2 p{margin:12px 0 0;color:#C9D4E3;font-size:17px}
 .lines li{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-inline-start:3px solid var(--accent)}
 .lines .num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font:500 15px/28px var(--mono);text-align:center}
+.pdfcard{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1.5px solid var(--navy);border-radius:14px;padding:16px;margin:12px 0}
+.pdfcard p{margin:2px 0 12px;color:var(--muted)}
+.pdfcard .btn{min-height:46px;font-size:16px;display:inline-block;width:auto;padding:8px 22px}
+.pdfic{flex:none;width:54px;height:68px;border-radius:6px;background:var(--navy);color:var(--accent);font:700 15px/68px var(--mono);text-align:center;border-bottom:5px solid var(--accent)}
 .idwrap{display:flex;flex-direction:column;align-items:center;margin:16px 0 14px}
 .strap{width:26px;height:34px;background:var(--accent);border-radius:4px 4px 0 0;position:relative}
 .strap:after{content:"";position:absolute;left:50%;bottom:6px;margin-left:-9px;width:18px;height:6px;border-radius:3px;background:var(--navy-700)}
@@ -886,7 +890,7 @@ function resultScreen() {
 
 function contactScreen() {
   const opts = COUNTRIES.map((c) => '<option value="' + c[0] + '">' + c[0] + " " + c[1] + "</option>").join("");
-  return header(false) + '<h2 style="margin:18px 0 4px">وين نرسل لك التقرير؟</h2><p class="muted">تقريرك جاهز: فيه خطة ٧ أيام وقصة تقولها بالمقابلة.</p>' +
+  return header(false) + '<h2 style="margin:18px 0 4px">وين نرسل لك التقرير؟</h2><p class="muted">تقريرك جاهز: فيه خريطة فجواتك وقصة تقولها بالمقابلة وقائمة PDF تنزّلها.</p>' +
     '<form id="lead" novalidate>' +
     '<label class="f" for="f-name">الاسم</label><input type="text" id="f-name" autocomplete="name" required value="' + esc(S.name || "") + '">' +
     '<label class="f" for="f-phone">رقم الجوال</label><div class="phone"><select id="f-cc" aria-label="مفتاح الدولة">' + opts + '</select><input type="tel" id="f-phone" inputmode="tel" autocomplete="tel-national" placeholder="5X XXX XXXX" required></div>' +
@@ -927,7 +931,7 @@ function reportHTML() {
     strong.forEach((x) => { h += '<div class="card stg"><h3>' + x.ar + ' <span class="badge strong">' + STATUS_LABEL.strong + "</span></h3><p>" + fmt(REPORT[x.k].strong.m) + "</p></div>"; });
   }
   h += '<h2>قصتك للمقابلة</h2><div class="story"><p><b>الموقف:</b> ' + fmt(STORY.situation) + "</p><p><b>إيش سويت:</b> " + fmt(STORY.did) + "</p><p><b>النتيجة:</b> " + fmt(STORY.result) + '</p><p style="margin:0"><b>' + fmt(STORY.tail) + "</b></p></div>";
-  h += "<h2>خطة ٧ أيام</h2>" + planHTML();
+  if (CONFIG.CHECKLIST_PDF_URL) h += '<h2>قائمتك الجاهزة</h2><div class="pdfcard"><div class="pdfic" aria-hidden="true">PDF</div><div><b>قائمة “المهمة الحقيقية”</b><p>خذها معك لأي مهمة حقيقية، من أول يوم.</p><a class="btn amber" href="' + esc(CONFIG.CHECKLIST_PDF_URL) + '" target="_blank" rel="noopener" data-log="checklist_click">حمّل الـ PDF</a></div></div>';
   h += '<div class="card" style="margin-top:20px"><p style="margin:0">' + esc(CLOSING) + "</p></div></div>";
   return h;
 }
@@ -936,8 +940,6 @@ function reportData() {
   const r = ranked(), item = (x) => ({ ar: x.ar, st: x.st, label: STATUS_LABEL[x.st] });
   const full = (x) => Object.assign(item(x), { m: plain(REPORT[x.k][x.st].m), n: plain(REPORT[x.k][x.st].n) });
   const top = r[0], non = r.filter((x) => x.st !== "strong");
-  const rows = []; const tmp = document.createElement("div"); tmp.innerHTML = planHTML();
-  tmp.querySelectorAll("li").forEach((li) => rows.push([li.querySelector("b").textContent, li.querySelector("span").textContent]));
   return {
     name: S.lead ? S.lead.name : "", score: toAr(computeScore()) + "/٨",
     rows: r.map(item),
@@ -945,7 +947,7 @@ function reportData() {
     others: non.filter((x) => x !== top).map(full),
     strong: r.filter((x) => x.st === "strong").map((x) => ({ ar: x.ar, m: plain(REPORT[x.k].strong.m) })),
     story: { situation: plain(STORY.situation), did: plain(STORY.did), result: plain(STORY.result), tail: plain(STORY.tail) },
-    plan: rows, closing: CLOSING,
+    closing: CLOSING,
     checklist: CONFIG.CHECKLIST_PDF_URL ? { url: CONFIG.CHECKLIST_PDF_URL, text: "حمّل قائمة “المهمة الحقيقية” PDF" } : null,
     cta: CONFIG.WAITLIST_URL ? { url: CONFIG.WAITLIST_URL, text: "سجّل في قائمة انتظار الدفعة القادمة" } : { url: CONFIG.SITE_URL, text: "ارجع للتحدي" }
   };
@@ -957,7 +959,6 @@ function reportScreen() {
     '<div class="actions stack noprint" style="position:static"><button class="btn" data-act="pdf">احفظ كـ PDF</button>' +
     btn(CONFIG.WHATSAPP_CHANNEL_URL, "channel_click", "انضم لقناة مبرمج على واتساب") +
     btn(CONFIG.WAITLIST_URL, "waitlist_click", "سجّل في قائمة انتظار الدفعة القادمة", "") +
-    btn(CONFIG.CHECKLIST_PDF_URL, "checklist_click", "حمّل قائمة “المهمة الحقيقية” PDF") +
     '<button class="btn sec" data-act="share">شارك نتيجتك</button><button class="btn ghost" data-act="again">أعد التحدي من جديد</button></div>' + footer();
 }
 
