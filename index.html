@@ -73,7 +73,11 @@ p{margin:0 0 10px}
 .resume .two .btn{min-height:46px;font-size:16px}
 .vid{margin:14px 0;border-radius:12px;overflow:hidden;background:var(--navy);aspect-ratio:16/9;position:relative}
 .vid iframe,.vid video{width:100%;height:100%;border:0;display:block}
-.vid button{position:absolute;inset:0;width:100%;background:var(--navy);color:#fff;border:0;font-size:18px;font-weight:700}
+.vid{aspect-ratio:auto;min-height:64px}
+.vid button{width:100%;min-height:64px;background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:12px;font-size:17px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px}
+.vid .play{width:0;height:0;border-inline-start:14px solid var(--navy);border-top:9px solid transparent;border-bottom:9px solid transparent;transform:scaleX(-1)}
+.vid{background:none}
+.vid.tall{aspect-ratio:auto;height:560px;background:#fff;border:1px solid var(--line)}
 
 /* chat */
 .chat{background:#E9E3D6;border-radius:14px;padding:12px}
@@ -201,6 +205,32 @@ input[type=text],input[type=tel],input[type=email],select{width:100%;min-height:
 .plan li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
 .plan li b{flex:none;width:68px;color:var(--navy)}
 .foot{font-size:16px;color:var(--muted);text-align:center;margin:26px 0 8px}
+
+
+/* hero + badge */
+.btn.amber{background:var(--accent);color:var(--ink)}.btn.amber:hover{background:#D8932C}
+.hero2{background:var(--navy);color:#fff;border-radius:16px;padding:22px 18px 20px;margin:16px 0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:28px 28px}
+.hero2 .kick{display:inline-block;font:500 16px var(--mono);font-family:"IBM Plex Sans Arabic",sans-serif;color:var(--accent);border:1px solid rgba(232,163,61,.55);border-radius:99px;padding:0 12px;margin-bottom:12px}
+.hero2 h1{color:#fff;font-size:30px;line-height:1.45}
+.hero2 .hl{color:var(--accent)}
+.hero2 p{margin:12px 0 0;color:#C9D4E3;font-size:17px}
+.lines li{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-inline-start:3px solid var(--accent)}
+.lines .num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font:500 15px/28px var(--mono);text-align:center}
+.idwrap{display:flex;flex-direction:column;align-items:center;margin:16px 0 14px}
+.strap{width:26px;height:34px;background:var(--accent);border-radius:4px 4px 0 0;position:relative}
+.strap:after{content:"";position:absolute;left:50%;bottom:6px;margin-left:-9px;width:18px;height:6px;border-radius:3px;background:var(--navy-700)}
+.idcard{width:100%;max-width:300px;background:var(--navy);color:#fff;border-radius:16px;padding:16px 18px 14px;text-align:center;border-top:8px solid var(--accent);box-shadow:0 10px 26px rgba(19,37,64,.28)}
+.idtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.idtop img{display:block;height:22px;width:auto}
+.idtop .mono{font-size:14px;color:#9DB4D3;letter-spacing:.12em}
+.avatar{width:84px;height:84px;margin:0 auto 8px;border-radius:50%;background:var(--paper);color:var(--navy);font:700 40px/84px "IBM Plex Sans Arabic",sans-serif;border:4px solid var(--accent)}
+.idname{font-size:23px;font-weight:700;line-height:1.4;word-break:break-word}
+.idrole{color:var(--accent);font-size:16px;margin-bottom:12px}
+.idinfo{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;text-align:start;margin:0 0 12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.25)}
+.idinfo dt{font-size:14px;color:#9DB4D3;line-height:1.4}
+.idinfo dd{margin:0;font-size:16px;font-weight:500}
+.barcode{height:34px;border-radius:3px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 5px,#fff 5px 6px,transparent 6px 9px,#fff 9px 12px,transparent 12px 14px)}
+#b-name{margin-top:6px}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:380px){h1{font-size:25px}.q{font-size:18px}}
@@ -645,20 +675,12 @@ function ranked() {
   const st = computeStages();
   return STAGES.map((s, i) => ({ k: s.k, ar: s.ar, st: st[s.k], i })).sort((a, b) => RANK[a.st] - RANK[b.st] || a.i - b.i);
 }
-function reportCode() {
-  const r = ranked(), parts = [];
-  const b = r.filter((x) => x.st === "blind").map((x) => x.ar), g = r.filter((x) => x.st === "gap").map((x) => x.ar);
-  if (b.length) parts.push("نقطة عمياء: " + b.join("، "));
-  if (g.length) parts.push("فجوة: " + g.join("، "));
-  if (!parts.length) parts.push("كل المراحل جاهز");
-  parts.push("النتيجة " + toAr(computeScore()) + "/٨");
-  return "تقريري: " + parts.join(" · ");
-}
 
 /* ---------- navigation ---------- */
 function go(screen, q) {
   S.screen = screen;
   if (q != null) { S.q = q; S.phase = "answer"; S.sel = []; S.qStart = Date.now(); moreOpen = false; }
+  if (screen === "badge") log("badge_view");
   if (screen === "brief") log("brief_view");
   if (screen === "q") log("question_view", { q: S.q + 1 });
   save(); render(true);
@@ -675,7 +697,7 @@ const app = () => $("#app");
 let scrollTarget = null;
 
 function statusPill() {
-  const m = S.screen === "landing" ? ["جديد", "new"] : (S.screen === "brief" || S.screen === "q") ? ["قيد العمل", "doing"] : ["مكتمل", "done"];
+  const m = (S.screen === "landing" || S.screen === "badge") ? ["جديد", "new"] : (S.screen === "brief" || S.screen === "q") ? ["قيد العمل", "doing"] : ["مكتمل", "done"];
   return '<span class="pill ' + m[1] + '">' + m[0] + "</span>";
 }
 function header(compact) {
@@ -689,6 +711,7 @@ function render(scrollTop) {
   if (resumeMode) { app().innerHTML = '<div class="wrap">' + landing() + "</div>"; if (scrollTop) window.scrollTo(0, 0); return; }
   switch (S.screen) {
     case "landing": h = landing(); break;
+    case "badge": h = badgeScreen(); break;
     case "brief": h = briefScreen(); break;
     case "q": h = qScreen(); break;
     case "result": h = resultScreen(); break;
@@ -702,17 +725,18 @@ function render(scrollTop) {
 }
 
 function landing() {
-  let h = header(false) + '<div class="hero"><h1>' + esc(TITLES[S.variant]) + "</h1>";
-  h += '<p class="muted" style="margin-top:8px">' + esc(SUBTITLE) + "</p></div>";
+  let h = header(false) + '<section class="hero2"><div class="kick">' + esc(TITLES[S.variant]) + "</div>" +
+    '<h1>تفكر إنك جاهز لأول وظيفة لك كمبرمج؟<br><span class="hl">خلنا نشوف<span class="cursor" aria-hidden="true"></span></span></h1>' +
+    "<p>" + esc(SUBTITLE) + "</p></section>";
   if (resumeMode) {
-    const where = S.screen === "q" ? "السؤال " + toAr(S.q + 1) : "الطلب";
+    const where = S.screen === "q" ? "السؤال " + toAr(S.q + 1) : S.screen === "badge" ? "بطاقة الموظف" : "الطلب";
     h += '<div class="resume" role="group" aria-label="استكمال"><div>كنت واصل لـ<b>' + where + "</b> — تكمل من مكانك؟</div>" +
       '<div class="two"><button class="btn" data-act="resume">أكمل</button><button class="btn sec" data-act="restart">أبدأ من جديد</button></div></div>';
     return h;
   }
-  if (CONFIG.INTRO_VIDEO_URL) h += '<div class="vid" id="vid"><button data-act="video">شغّل الفيديو التعريفي · ٦٠ ثانية</button></div>';
-  h += '<ul class="lines">' + LANDING_LINES.map((l) => "<li>" + esc(l) + "</li>").join("") + "</ul>";
-  h += '<div class="actions"><button class="btn" data-act="start">ابدأ التحدي</button><div class="small">بدون تسجيل · يحفظ تقدمك تلقائياً</div></div>';
+  if (CONFIG.INTRO_VIDEO_URL) h += '<div class="vid" id="vid"><button data-act="video"><span class="play" aria-hidden="true"></span>شاهد الفيديو التعريفي · ٦٠ ثانية</button></div>';
+  h += '<ul class="lines">' + LANDING_LINES.map((l, i) => '<li><b class="num">' + (i + 1) + "</b><span>" + esc(l) + "</span></li>").join("") + "</ul>";
+  h += '<div class="actions"><button class="btn amber" data-act="start">ابدأ التحدي</button><div class="small">بدون تسجيل · يحفظ تقدمك تلقائياً</div></div>';
   return h + footer();
 }
 const footer = () => '<div class="foot noprint">© مبرمج · بياناتك تستخدم فقط للتواصل معك بخصوص التقرير</div>';
@@ -724,6 +748,25 @@ function briefBubbles() {
   return '<div class="chat">' + bubble({ from: BRIEF.from, time: BRIEF.time, lines: BRIEF.lines }) +
     (S.answers[0] ? bubble(SALEM_REPLY) : "") + "</div>" +
     '<div class="brief-sum">' + BRIEF.summary.map((r) => "<div><b>" + esc(r[0]) + ":</b><span>" + esc(r[1]) + "</span></div>").join("") + "</div>";
+}
+const badgeNo = () => { let n = 0; for (const c of S.sid) n = (n * 31 + c.charCodeAt(0)) % 9000; return "MBR-" + String(n + 1000); };
+function badgeDate() { const d = new Date(); return toAr(String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear()); }
+function badgeScreen() {
+  const nm = S.name || "";
+  return header(false) + '<h2 style="margin:18px 0 4px">أهلاً بك في الفريق</h2><p class="muted">هذي بطاقة الموظف حقتك. اكتب اسمك عليها:</p>' +
+    '<input type="text" id="b-name" maxlength="28" autocomplete="name" placeholder="اسمك" value="' + esc(nm) + '" aria-label="الاسم على البطاقة">' +
+    '<div class="idwrap"><div class="strap" aria-hidden="true"></div><div class="idcard" role="img" aria-label="بطاقة موظف">' +
+    '<div class="idtop"><img src="' + LOGO_W + '" alt="" height="22"><span class="mono">EMPLOYEE ID</span></div>' +
+    '<div class="avatar" id="b-av" aria-hidden="true">' + esc(nm ? [...nm][0] : "؟") + "</div>" +
+    '<div class="idname" id="b-nm">' + esc(nm || "موظف جديد") + "</div>" +
+    '<div class="idrole">مبرمج مبتدئ · فترة التجربة</div>' +
+    '<dl class="idinfo"><div><dt>الرقم الوظيفي</dt><dd class="mono">' + badgeNo() + "</dd></div><div><dt>تاريخ البدء</dt><dd>" + badgeDate() + "</dd></div>" +
+    '<div><dt>الفريق</dt><dd>تطبيقات الحجز</dd></div><div><dt>عميلك الحالي</dt><dd>سالم</dd></div></dl>' +
+    '<div class="barcode" aria-hidden="true"></div></div></div>' +
+    '<div class="chat" style="margin-top:6px"><div class="bubble"><div class="who">مديرك في الفريق</div>' +
+    "<p>أول يوم دوام، وجاك أول عميل. دورك اليوم: <b>تتعامل مع سالم</b>، صاحب ملاعب بادل، وتسلّمه نظام حجز يشتغل صح.</p><p>ما فيه أحد يمسك يدك — طبّق اللي تعرفه.</p>" +
+    '<div class="t">9:10 ص</div></div></div>' +
+    '<div class="actions"><button class="btn amber" data-act="badge-go">استلمت البطاقة — قابل سالم</button></div>';
 }
 function briefScreen() {
   return header(false) + '<h2 style="margin:18px 0 10px">وصلتك رسالة من العميل</h2>' + briefBubbles() +
@@ -845,9 +888,9 @@ function contactScreen() {
   const opts = COUNTRIES.map((c) => '<option value="' + c[0] + '">' + c[0] + " " + c[1] + "</option>").join("");
   return header(false) + '<h2 style="margin:18px 0 4px">وين نرسل لك التقرير؟</h2><p class="muted">تقريرك جاهز: فيه خطة ٧ أيام وقصة تقولها بالمقابلة.</p>' +
     '<form id="lead" novalidate>' +
-    '<label class="f" for="f-name">الاسم</label><input type="text" id="f-name" autocomplete="name" required>' +
-    '<label class="f" for="f-phone">رقم الواتساب</label><div class="phone"><select id="f-cc" aria-label="مفتاح الدولة">' + opts + '</select><input type="tel" id="f-phone" inputmode="tel" autocomplete="tel-national" placeholder="5X XXX XXXX" required></div>' +
-    '<label class="f" for="f-mail">الإيميل <span class="muted">(اختياري)</span></label><input type="email" id="f-mail" autocomplete="email" dir="ltr" style="text-align:left">' +
+    '<label class="f" for="f-name">الاسم</label><input type="text" id="f-name" autocomplete="name" required value="' + esc(S.name || "") + '">' +
+    '<label class="f" for="f-phone">رقم الجوال</label><div class="phone"><select id="f-cc" aria-label="مفتاح الدولة">' + opts + '</select><input type="tel" id="f-phone" inputmode="tel" autocomplete="tel-national" placeholder="5X XXX XXXX" required></div>' +
+    '<label class="f" for="f-mail">الإيميل</label><input type="email" id="f-mail" required autocomplete="email" dir="ltr" style="text-align:left">' +
     '<label class="chk"><input type="checkbox" id="f-consent"><span>أوافق إن مبرمج يتواصل معي بخصوص التقرير والبرامج القادمة</span></label>' +
     '<div class="err" id="f-err" role="alert"></div>' +
     '<div class="actions static"><button class="btn" type="submit">أرسل لي التقرير</button><div class="small">ما نشارك بياناتك مع أي أحد.</div></div></form>';
@@ -889,12 +932,10 @@ function reportHTML() {
   return h;
 }
 function resLink(k) { const u = CONFIG.RESOURCES[k]; return u ? '<p><b>مصدر:</b> <a href="' + esc(u) + '" target="_blank" rel="noopener">افتح المصدر</a></p>' : ""; }
-function waLink() { return "https://wa.me/" + CONFIG.WHATSAPP_NUMBER + "?text=" + encodeURIComponent(reportCode()); }
 function reportScreen() {
   const btn = (u, id, txt, cls) => u ? '<a class="btn ' + (cls || "sec") + '" href="' + esc(u) + '" target="_blank" rel="noopener" data-log="' + id + '">' + txt + "</a>" : "";
   return header(false) + reportHTML() +
     '<div class="actions stack noprint" style="position:static"><button class="btn" data-act="pdf">احفظ كـ PDF</button>' +
-    '<a class="btn sec" href="' + esc(waLink()) + '" target="_blank" rel="noopener" data-log="whatsapp_report_click">أرسل التقرير لواتسابي</a>' +
     btn(CONFIG.WHATSAPP_CHANNEL_URL, "channel_click", "انضم لقناة مبرمج على واتساب") +
     btn(CONFIG.WAITLIST_URL, "waitlist_click", "سجّل في قائمة انتظار الدفعة القادمة", "") +
     btn(CONFIG.CHECKLIST_PDF_URL, "checklist_click", "حمّل قائمة “المهمة الحقيقية” PDF") +
@@ -989,8 +1030,8 @@ function submitLead(e) {
   const name = $("#f-name").value.trim(), cc = $("#f-cc").value, raw = $("#f-phone").value.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, "").replace(/^0+/, "");
   const mail = $("#f-mail").value.trim(), consent = $("#f-consent").checked, err = $("#f-err");
   if (!name) { err.textContent = "اكتب اسمك"; $("#f-name").focus(); return; }
-  if (raw.length < 6 || raw.length > 12) { err.textContent = "رقم الواتساب غير صحيح"; $("#f-phone").focus(); return; }
-  if (mail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { err.textContent = "الإيميل غير صحيح"; $("#f-mail").focus(); return; }
+  if (raw.length < 6 || raw.length > 12) { err.textContent = "رقم الجوال غير صحيح"; $("#f-phone").focus(); return; }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { err.textContent = "اكتب إيميل صحيح — راح نرسل لك التقرير عليه"; $("#f-mail").focus(); return; }
   if (!consent) { err.textContent = "لازم توافق على التواصل عشان نرسل لك التقرير"; return; }
   const r = ranked();
   S.lead = { name, whatsapp: cc + raw, email: mail };
@@ -1024,7 +1065,8 @@ document.addEventListener("click", (ev) => {
   const a = el.dataset.act;
   if (a === "sheet-close") { if (el.classList.contains("scrim") && t !== el) return; sheetOpen = false; render(false); return; }
   switch (a) {
-    case "start": S.startedAt = Date.now(); log("start"); flush(false); go("brief"); break;
+    case "start": S.startedAt = Date.now(); log("start"); flush(false); go("badge"); break;
+    case "badge-go": go("brief"); break;
     case "video": playVideo(); break;
     case "resume": resumeMode = false; S.qStart = Date.now(); log("resume", { resumed_at_step: curStep() }); render(true); break;
     case "restart": log("restart"); S = Object.assign(newState(), { sid: S.sid, variant: S.variant }); resumeMode = false; save(); render(true); break;
@@ -1049,13 +1091,28 @@ document.addEventListener("keydown", (ev) => {
   ev.preventDefault();
   if (el.classList.contains("term")) openTip(el); else toggleOpt(el);
 });
+document.addEventListener("input", (ev) => {
+  if (ev.target.id !== "b-name") return;
+  S.name = ev.target.value.trim(); save();
+  const nm = $("#b-nm"), av = $("#b-av"); if (nm) nm.textContent = S.name || "موظف جديد"; if (av) av.textContent = S.name ? [...S.name][0] : "؟";
+});
 document.addEventListener("submit", (ev) => { if (ev.target.id === "lead") submitLead(ev); });
 
+function embedUrl(u) {
+  let m = u.match(/instagram\.com\/(reel|p|tv)\/([\w-]+)/i);
+  if (m) return "https://www.instagram.com/" + m[1] + "/" + m[2] + "/embed";
+  m = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
+  if (m) return "https://www.youtube.com/embed/" + m[1] + "?autoplay=1";
+  return u;
+}
 function playVideo() {
   const u = CONFIG.INTRO_VIDEO_URL, box = $("#vid"); if (!box) return;
   log("intro_video_play");
   if (/\.mp4(\?|$)/i.test(u)) box.innerHTML = '<video src="' + esc(u) + '" controls autoplay playsinline></video>';
-  else box.innerHTML = '<iframe src="' + esc(u) + '" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="فيديو تعريفي"></iframe>';
+  else {
+    box.classList.add("tall");
+    box.innerHTML = '<iframe src="' + esc(embedUrl(u)) + '" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen title="فيديو تعريفي"></iframe>';
+  }
 }
 
 /* ---------- boot ---------- */
